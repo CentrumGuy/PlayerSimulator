@@ -1,20 +1,20 @@
 package fr.cocoraid.playersimulator;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
 import fr.cocoraid.playersimulator.api.BotAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.profile.PlayerProfile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public final class BotManager {
+
     private final Main plugin;
     private final BotAdapter adapter;
     private final Map<UUID, Bot> bots = new LinkedHashMap<>();
-
     private final Set<UUID> joining = new HashSet<>();
     private final Set<String> reservedNames = new HashSet<>();
     private int botNum = 0;
@@ -24,7 +24,9 @@ public final class BotManager {
         this.adapter = adapter;
     }
 
-    public Collection<Bot> getBots() { return new ArrayList<>(bots.values()); }
+    public Collection<Bot> getBots() {
+        return new ArrayList<>(bots.values());
+    }
 
     public boolean isBot(Player p) {
         return bots.containsKey(p.getUniqueId()) || joining.contains(p.getUniqueId());
@@ -41,34 +43,37 @@ public final class BotManager {
 
     public String nextName() {
         String n;
-        do { n = "Bot" + (++botNum); } while (isNameTaken(n));
+        do {
+            n = "Bot" + (++botNum);
+        } while (isNameTaken(n));
         return n;
     }
 
     public void spawn(String name, Location location, CommandSender feedback) {
         reservedNames.add(name.toLowerCase());
-        PlayerProfile base = Bukkit.createProfile(name);
+        PlayerProfile base = Bukkit.createPlayerProfile(name);
         base.update().whenComplete((res, ex) -> Bukkit.getScheduler().runTask(plugin, () -> {
             try {
-                PlayerProfile resolved = (ex == null && res != null && res.getId() != null)
+                PlayerProfile resolved = (ex == null && res != null && res.getUniqueId() != null)
                         ? res
-                        : Bukkit.createProfile(offlineUuid(name), name);
+                        : Bukkit.createPlayerProfile(offlineUuid(name), name);
                 PlayerProfile profile = resolved.getName() == null
-                        ? Bukkit.createProfile(resolved.getId(), name)
+                        ? Bukkit.createPlayerProfile(resolved.getUniqueId(), name)
                         : resolved;
-                if (Bukkit.getPlayer(profile.getId()) != null) {
+                UUID id = profile.getUniqueId();
+                if (Bukkit.getPlayer(id) != null) {
                     if (feedback != null) Main.send(feedback, "Player is already online");
                     return;
                 }
-                joining.add(profile.getId());
+                joining.add(id);
                 Player p;
                 try {
                     p = adapter.spawn(profile, location);
                 } catch (Throwable t) {
-                    joining.remove(profile.getId());
+                    joining.remove(id);
                     throw t;
                 }
-                joining.remove(profile.getId());
+                joining.remove(id);
                 bots.put(p.getUniqueId(), new Bot(p));
             } catch (Throwable t) {
                 plugin.getLogger().severe("Bot '" + name + "' konnte nicht gespawnt werden: " + t);
@@ -84,8 +89,11 @@ public final class BotManager {
         BotMenus.remove(bot);
         bots.remove(bot.getBot().getUniqueId());
         if (bot.getBot().isOnline()) {
-            try { adapter.disconnect(bot.getBot()); }
-            catch (Throwable t) { plugin.getLogger().warning("Disconnect fehlgeschlagen: " + t); }
+            try {
+                adapter.disconnect(bot.getBot());
+            } catch (Throwable t) {
+                plugin.getLogger().warning("Disconnect fehlgeschlagen: " + t);
+            }
         }
     }
 

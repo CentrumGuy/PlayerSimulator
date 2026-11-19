@@ -1,6 +1,6 @@
 package fr.cocoraid.playersimulator.api;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
+import org.bukkit.profile.PlayerProfile;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

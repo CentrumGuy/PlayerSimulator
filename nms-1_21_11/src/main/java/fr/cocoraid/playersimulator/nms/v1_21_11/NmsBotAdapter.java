@@ -1,6 +1,6 @@
 package fr.cocoraid.playersimulator.nms.v1_21_11;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
+import org.bukkit.profile.PlayerProfile;
 import com.mojang.authlib.GameProfile;
 import fr.cocoraid.playersimulator.api.BotAdapter;
 import net.minecraft.network.Connection;
