@@ -1,0 +1,50 @@
+name: PlayerSimulator
+version: 0.3.0
+api-version: '1.21.11'
+description: Add fake players to your minecraft server
+authors: [CentrumGuy, Travis Watkins, cocoraid]
+main: fr.cocoraid.playersimulator.Main
+
+commands:
+  spawnbot:
+    description: Spawn a fake player (optionally several, within a radius)
+    usage: /<command> [count|name] [radius]
+  killbots:
+    description: Disconnect all fake players
+    usage: /<command>
+  killbot:
+    description: Disconnect a specific fake player
+    usage: /<command> <name>
+  simdebug:
+    description: Read server debug information
+    usage: /<command>
+  editbot:
+    description: Edit a bot's properties
+    usage: /<command> <name>
+  command:
+    description: Make a bot run a command
+    usage: /<command> <bot> <command...>
+
+permissions:
+  playersim.*:
+    description: Allow all plugin permissions
+    default: op
+    children:
+      playersim.spawnbot: true
+      playersim.killbots: true
+      playersim.killbot: true
+      playersim.debug: true
+      playersim.editbot: true
+      playersim.command: true
+  playersim.spawnbot:
+    default: op
+  playersim.killbots:
+    default: op
+  playersim.killbot:
+    default: op
+  playersim.debug:
+    default: op
+  playersim.editbot:
+    default: op
+  playersim.command:
+    default: op
